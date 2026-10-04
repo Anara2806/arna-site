@@ -542,10 +542,8 @@ footer a{color:var(--muted)}
       <h2 style="margin-top:12px">Расскажите о задаче, отвечу в течение дня</h2>
       <p class="lead" style="margin-top:14px">Проще всего написать в WhatsApp. Первая консультация бесплатная и ни к чему не обязывает.</p>
       <ul class="contact-ways">
-        <li><span>WhatsApp</span><b><span class="placeholder">+7 7XX XXX XX XX</span></b></li>
-        <li><span>Telegram</span><b><span class="placeholder">@username</span></b></li>
-        <li><span>Instagram</span><b><span class="placeholder">@arnalabs</span></b></li>
-        <li><span>Почта</span><b><span class="placeholder">hello@arnalabs</span></b></li>
+        <li><span>WhatsApp</span><b><a href="https://wa.me/77006916832" target="_blank" rel="noopener">+7 700 691 68 32</a></b></li>
+        <li><span>Telegram</span><b><a href="https://t.me/abanara1" target="_blank" rel="noopener">@abanara1</a></b></li>
       </ul>
     </div>
     <form id="leadForm" novalidate>
@@ -616,8 +614,8 @@ footer a{color:var(--muted)}
   });
   render('fit');
 
-  // На живом сайте: подставьте свой номер в WA_NUMBER, форма откроет WhatsApp с готовым сообщением
-  var WA_NUMBER = '77000000000';
+  // Форма открывает WhatsApp с готовым сообщением на этот номер
+  var WA_NUMBER = '77006916832';
   document.getElementById('leadForm').addEventListener('submit', function(e){
     e.preventDefault();
     var f = e.target;
