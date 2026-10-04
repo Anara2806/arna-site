@@ -196,9 +196,9 @@ td:first-child{font-weight:600}
 .about-copy{display:grid;gap:16px;min-width:0}
 .creds{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
 .creds li{border:1px solid var(--line);border-radius:999px;padding:.3em .9em;font-size:.88rem;background:var(--surface)}
-@media (max-width:700px){.about{grid-template-columns:1fr}.photo{max-width:220px}}
+@media (max-width:700px){.about{grid-template-columns:1fr}.photo,.portrait{max-width:220px}}
 
-.about-wide .about-copy{max-width:900px}
+.portrait{width:100%;max-width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:var(--radius);display:block}
 .about-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-block:8px}
 .about-facts div{display:grid;gap:4px;align-content:start;border-top:2px solid var(--accent);padding-top:12px}
 .about-facts b{font-family:var(--font-display);font-size:1.4rem;font-variant-numeric:tabular-nums}
@@ -507,10 +507,11 @@ footer a{color:var(--muted)}
 
 <!-- 12. ОБО МНЕ -->
 <section class="band" id="about">
-  <div class="wrap about-wide">
+  <div class="wrap about">
+    <img class="portrait" src="anara.jpg" width="640" height="800" alt="Анара, основатель ArnaLabs" loading="lazy">
     <div class="about-copy">
       <span class="eyebrow">Обо мне</span>
-      <h2>Анара Абилмажинова, старший бизнес-аналитик</h2>
+      <h2>Анара, старший бизнес-аналитик</h2>
       <p class="lead">Больше 5 лет разбираю и перестраиваю бизнес-процессы в международных консалтинговых и IT-компаниях в Вене и Астане: госсектор, здравоохранение, энергетика, автопром. Провожу интервью с сотрудниками, рисую процессы «как есть» и «как надо», нахожу, где теряются время и деньги, и автоматизирую рутину.</p>
       <p class="lead">Теперь применяю этот опыт к малому бизнесу Казахстана. Сначала разбираюсь в вашем процессе, потом автоматизирую то, что действительно окупится, и остаюсь на связи после запуска.</p>
       <div class="about-facts">
