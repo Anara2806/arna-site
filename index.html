@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ArnaLabs · AI-боты и автоматизация для бизнеса в Казахстане</title>
+<meta name="description" content="AI-боты для WhatsApp, Instagram и Telegram, автоматизация бизнес-процессов и консалтинг. Бесплатный пилот 2–3 недели.">
+<meta property="og:title" content="ArnaLabs · AI-боты и автоматизация для бизнеса">
+<meta property="og:description" content="Бот отвечает клиентам в WhatsApp 24/7, записывает и передаёт заявки вам. Бесплатный пилот.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: одна колонка до 1120px, секции разделены фоном, а не карточками; герой = заголовок + живой диалог WhatsApp в 23:47 */
+:root{
+  --bg:#f4f6f6;
+  --surface:#ffffff;
+  --ink:#13212b;
+  --muted:#55646d;
+  --line:#d9e0e2;
+  --accent:#0b6e75;        /* глубокий бирюзовый: «арна» = канал, поток */
+  --accent-ink:#ffffff;
+  --accent-soft:#dcefee;
+  --gold:#b8862a;          /* солнце флага, только для мелких акцентов */
+  --band:#e9eeee;
+  --chat-bg:#e7ddd2;
+  --bubble-in:#ffffff;
+  --bubble-out:#d6f3d0;
+  --font-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --font-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e171c; --surface:#15222a; --ink:#e6eef0; --muted:#9db0b7; --line:#26363f;
+    --accent:#3fb3b5; --accent-ink:#06191b; --accent-soft:#16363a; --gold:#d9a94a; --band:#121e24;
+    --chat-bg:#0b141a; --bubble-in:#1f2c34; --bubble-out:#11433a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e171c; --surface:#15222a; --ink:#e6eef0; --muted:#9db0b7; --line:#26363f;
+  --accent:#3fb3b5; --accent-ink:#06191b; --accent-soft:#16363a; --gold:#d9a94a; --band:#121e24;
+  --chat-bg:#0b141a; --bubble-in:#1f2c34; --bubble-out:#11433a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.6;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,3.3rem);letter-spacing:-.01em}
+h2{font-size:clamp(1.5rem,3.2vw,2.2rem)}
+h3{font-family:var(--font-body);font-weight:600;font-size:1.15rem;line-height:1.3}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px}
+.eyebrow{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lead{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.btn{display:inline-flex;align-items:center;gap:.5em;padding:.85em 1.4em;border-radius:999px;font-weight:600;text-decoration:none;border:2px solid var(--accent);font-family:var(--font-body);font-size:1rem;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--accent)}
+.placeholder{font-family:var(--font-mono);font-size:.8rem;background:var(--accent-soft);color:var(--accent);padding:.1em .45em;border-radius:4px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:1.35rem;color:var(--ink);text-decoration:none;letter-spacing:.02em}
+.logo svg{flex:none}
+nav.links{display:flex;gap:22px;font-size:.95rem}
+nav.links a{color:var(--ink);text-decoration:none}
+nav.links a:hover{color:var(--accent)}
+header .btn{padding:.55em 1.1em;font-size:.92rem}
+@media (max-width:900px){nav.links{display:none}}
+
+section{padding-block:clamp(56px,8vw,96px)}
+section.band{background:var(--band)}
+.sec-head{display:grid;gap:14px;margin-bottom:40px;max-width:760px}
+
+/* hero */
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.hero-copy{display:grid;gap:22px;min-width:0}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero-facts{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.92rem;color:var(--muted);list-style:none;padding:0;margin:0}
+.hero-facts li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:8px;vertical-align:middle}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr}}
+
+/* phone chat */
+.phone{background:var(--chat-bg);border-radius:26px;border:8px solid var(--ink);overflow:hidden;max-width:380px;width:100%;justify-self:center;box-shadow:0 30px 60px -30px rgba(10,40,45,.45)}
+.phone-bar{background:#075e54;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.92rem}
+.phone-bar .ava{width:34px;height:34px;border-radius:50%;background:#ffffff33;display:grid;place-items:center;font-weight:700;font-size:.8rem}
+.phone-bar small{display:block;opacity:.8;font-size:.75rem}
+.chat{display:flex;flex-direction:column;gap:8px;padding:14px 12px 18px;font-size:.88rem;line-height:1.4}
+.msg{max-width:84%;padding:7px 10px 18px;border-radius:10px;position:relative;color:var(--ink)}
+.msg time{position:absolute;right:8px;bottom:3px;font-size:.68rem;color:var(--muted);font-family:var(--font-mono)}
+.msg.in{background:var(--bubble-in);align-self:flex-start;border-top-left-radius:2px}
+.msg.out{background:var(--bubble-out);align-self:flex-end;border-top-right-radius:2px}
+.msg .tag{display:block;font-size:.68rem;font-weight:600;color:var(--accent);margin-bottom:2px}
+
+/* problem */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.stat{border-top:3px solid var(--accent);padding-top:18px;display:grid;gap:8px;align-content:start}
+.stat b{font-family:var(--font-display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.stat p{color:var(--muted)}
+.src{font-size:.8rem;color:var(--muted);margin-top:24px}
+@media (max-width:760px){.stats{grid-template-columns:1fr}}
+
+/* services */
+.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.service{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:grid;gap:14px;align-content:start}
+.service .num{font-family:var(--font-mono);font-size:.78rem;color:var(--gold);letter-spacing:.1em}
+.service ul{margin:0;padding-left:1.1em;color:var(--muted);display:grid;gap:4px;font-size:.95rem}
+.service .price{font-weight:600;color:var(--ink);font-size:.95rem;border-top:1px dashed var(--line);padding-top:12px;margin-top:auto}
+@media (max-width:900px){.services{grid-template-columns:1fr}}
+
+/* features */
+.features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 36px}
+.feature{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start}
+.feature .ic{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.feature p{color:var(--muted);font-size:.95rem;margin-top:4px}
+@media (max-width:900px){.features{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.features{grid-template-columns:1fr}}
+
+/* flow (automation) */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:.45em 1em;font-size:.92rem}
+.flow i{font-style:normal;color:var(--gold);font-weight:700}
+.auto-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.auto-list{display:grid;gap:18px;margin:0;padding:0;list-style:none}
+.auto-list li{display:grid;gap:4px;border-left:2px solid var(--accent);padding-left:16px}
+.auto-list li p{color:var(--muted);font-size:.95rem}
+@media (max-width:860px){.auto-grid{grid-template-columns:1fr}}
+
+/* industries */
+.industries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.industry{background:var(--surface);padding:24px;display:grid;gap:8px;align-content:start}
+.industry p{color:var(--muted);font-size:.93rem}
+.industry .q{font-family:var(--font-mono);font-size:.78rem;color:var(--accent)}
+@media (max-width:860px){.industries{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.industries{grid-template-columns:1fr}}
+
+/* demo */
+.demo-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:start}
+.video{aspect-ratio:16/9;max-width:100%;border-radius:var(--radius);border:2px dashed var(--accent);background:var(--accent-soft);display:grid;place-items:center;text-align:center;padding:24px;color:var(--accent)}
+.video .play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;margin:0 auto 12px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tabs button{font:inherit;font-size:.88rem;padding:.45em .9em;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.demo-chat{background:var(--chat-bg);border-radius:var(--radius);min-height:300px}
+@media (max-width:860px){.demo-grid{grid-template-columns:1fr}}
+
+/* process */
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:grid;gap:8px;align-content:start;padding-top:16px;border-top:2px solid var(--line)}
+.steps li::before{content:counter(s);font-family:var(--font-display);font-size:1.6rem;color:var(--accent)}
+.steps li p{color:var(--muted);font-size:.93rem}
+.steps .dur{font-family:var(--font-mono);font-size:.75rem;color:var(--gold)}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+/* compare */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.95rem}
+th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tbody tr:last-child td{border-bottom:0}
+td.us,th.us{background:var(--accent-soft)}
+th.us{color:var(--accent)}
+td:first-child{font-weight:600}
+
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;gap:16px}
+.plan.hl{border:2px solid var(--accent)}
+.plan .tagline{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.plan .amount{font-family:var(--font-display);font-size:1.7rem;font-variant-numeric:tabular-nums}
+.plan .amount small{display:block;font-family:var(--font-body);font-size:.9rem;color:var(--muted);font-weight:400;margin-top:4px}
+.plan ul{margin:0;padding-left:1.1em;display:grid;gap:6px;color:var(--muted);font-size:.95rem}
+.plan .btn{margin-top:auto;justify-content:center}
+.note{font-size:.88rem;color:var(--muted);margin-top:18px}
+@media (max-width:900px){.plans{grid-template-columns:1fr}}
+
+/* pilot banner */
+.pilot{background:var(--accent);color:var(--accent-ink);border-radius:var(--radius);padding:clamp(28px,4vw,44px);display:grid;grid-template-columns:1.4fr .6fr;gap:24px;align-items:center}
+.pilot h2{color:inherit}
+.pilot p{opacity:.9;margin-top:10px}
+.pilot .btn{background:var(--accent-ink);color:var(--accent);border-color:var(--accent-ink);justify-self:end}
+@media (max-width:760px){.pilot{grid-template-columns:1fr}.pilot .btn{justify-self:start}}
+
+/* about */
+.about{display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start}
+.photo{aspect-ratio:4/5;max-width:100%;border-radius:var(--radius);background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-family:var(--font-mono);font-size:.8rem;text-align:center;padding:16px}
+.about-copy{display:grid;gap:16px;min-width:0}
+.creds{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.creds li{border:1px solid var(--line);border-radius:999px;padding:.3em .9em;font-size:.88rem;background:var(--surface)}
+@media (max-width:700px){.about{grid-template-columns:1fr}.photo{max-width:220px}}
+
+/* faq */
+.faq{display:grid;gap:10px;max-width:820px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--font-display);color:var(--accent)}
+details[open] summary::after{content:"−"}
+details p{color:var(--muted);margin-top:10px}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.contact-ways{display:grid;gap:14px;list-style:none;padding:0;margin:20px 0 0}
+.contact-ways li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;flex-wrap:wrap}
+.contact-ways span{color:var(--muted)}
+form{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:.9rem;font-weight:500}
+input,select,textarea{font:inherit;font-size:1rem;padding:.7em .85em;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+textarea{min-height:90px;resize:vertical}
+.consent{font-size:.8rem;color:var(--muted);font-weight:400}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding-block:32px;font-size:.88rem;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="ArnaLabs, на главную">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M3 21c5 0 6-12 12-12s7 12 12 12" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/><circle cx="3" cy="21" r="2.6" fill="var(--gold)"/><circle cx="27" cy="21" r="2.6" fill="var(--gold)"/></svg>
+      ArnaLabs
+    </a>
+    <nav class="links" aria-label="Разделы">
+      <a href="#services">Услуги</a>
+      <a href="#demo">Демо</a>
+      <a href="#process">Как работаем</a>
+      <a href="#pricing">Цены</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn btn-primary" href="#contact">Обсудить задачу</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- 1. HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">AI-боты · автоматизация · консалтинг</span>
+      <h1>Ваши клиенты получают ответ в WhatsApp, даже когда вы спите</h1>
+      <p class="lead">Настраиваю AI-ботов, которые отвечают на вопросы, записывают клиентов и передают заявки вам. А ещё убираю ручную рутину из процессов: таблицы, уведомления, отчёты.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#contact">Получить бесплатную консультацию</a>
+        <a class="btn btn-ghost" href="#demo">Посмотреть демо</a>
+      </div>
+      <ul class="hero-facts">
+        <li>Пилот 2–3 недели бесплатно</li>
+        <li>Запуск за 1–2 недели</li>
+        <li>Казахский, русский, английский</li>
+      </ul>
+    </div>
+    <div class="phone" role="img" aria-label="Пример переписки бота языковой школы в WhatsApp в 23:47">
+      <div class="phone-bar"><div class="ava">LS</div><div>Языковая школа<small>онлайн · отвечает бот</small></div></div>
+      <div class="chat">
+        <div class="msg out">Здравствуйте! Сколько стоит английский для ребёнка 10 лет?<time>23:47</time></div>
+        <div class="msg in"><span class="tag">AI-ассистент</span>Здравствуйте! Группа для детей 8–12 лет: 32 000 ₸ в месяц, 8 занятий. Первый урок бесплатный. Записать вас на пробный?<time>23:47</time></div>
+        <div class="msg out">Да. В субботу можно?<time>23:48</time></div>
+        <div class="msg in"><span class="tag">AI-ассистент</span>В субботу свободно 11:00 и 14:00. Какое время удобнее?<time>23:48</time></div>
+        <div class="msg out">11:00<time>23:48</time></div>
+        <div class="msg in"><span class="tag">AI-ассистент</span>Готово ✓ Записала на пробный урок в субботу в 11:00. Администратор подтвердит утром.<time>23:48</time></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. ПРОБЛЕМА -->
+<section class="band" id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Почему это важно</span>
+      <h2>Заявка без быстрого ответа уходит к конкуренту</h2>
+      <p class="lead">Клиент пишет сразу в несколько мест и выбирает тех, кто ответил первым. Вечером, в выходные и во время уроков отвечать некому.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>150–700 тыс ₸</b><p>в месяц стоит администратор, который отвечает на звонки и переписку в WhatsApp и Instagram.</p></div>
+      <div class="stat"><b>5–7 вопросов</b><p>повторяются изо дня в день: цена, расписание, адрес, как записаться. На них может отвечать бот.</p></div>
+      <div class="stat"><b>24/7</b><p>бот отвечает за секунды, ночью и в праздники, и не забывает записать контакт.</p></div>
+    </div>
+    <p class="src">Зарплаты администраторов: вакансии на hh.kz, октябрь 2026.</p>
+  </div>
+</section>
+
+<!-- 3. УСЛУГИ -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Услуги</span>
+      <h2>Три способа вернуть вам время</h2>
+    </div>
+    <div class="services">
+      <article class="service">
+        <span class="num">01 · AI-БОТЫ</span>
+        <h3>Чат-боты для WhatsApp, Instagram и Telegram</h3>
+        <p>Бот отвечает клиентам, задаёт уточняющие вопросы, записывает и передаёт заявку менеджеру.</p>
+        <ul><li>Ответы по базе знаний компании</li><li>Запись на услугу или пробное занятие</li><li>Передача живому менеджеру с историей диалога</li></ul>
+        <p class="price">Пилот бесплатно, затем от 80 000 ₸</p>
+      </article>
+      <article class="service">
+        <span class="num">02 · АВТОМАТИЗАЦИЯ</span>
+        <h3>Автоматизация бизнес-процессов</h3>
+        <p>Связываю ваши сервисы, чтобы данные переносились сами, а не руками.</p>
+        <ul><li>Заявки сразу в таблицу или CRM</li><li>Уведомления и напоминания клиентам</li><li>Ежедневные отчёты в Telegram</li></ul>
+        <p class="price">От 50 000 ₸ за процесс</p>
+      </article>
+      <article class="service">
+        <span class="num">03 · КОНСАЛТИНГ</span>
+        <h3>Оптимизация бизнес-процессов</h3>
+        <p>Разбираю, как сейчас устроена работа, где теряются заявки и время, и что стоит автоматизировать в первую очередь.</p>
+        <ul><li>Карта процессов «как есть» и «как надо»</li><li>Поиск узких мест и потерь</li><li>План автоматизации с приоритетами</li></ul>
+        <p class="price">Первая встреча 30 минут бесплатно</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 4. ЧТО УМЕЕТ БОТ -->
+<section class="band" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Возможности AI-бота</span>
+      <h2>Что бот делает за вашего администратора</h2>
+    </div>
+    <div class="features">
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h3>Отвечает 24/7</h3><p>За секунды, ночью и в выходные.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v10H8l-4 4z"/></svg></div><div><h3>Понимает свободный текст</h3><p>AI отвечает по базе знаний вашей компании, а не только по кнопкам.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div><div><h3>Квалифицирует заявку</h3><p>Задаёт 4–5 вопросов: что нужно, для кого, когда, бюджет.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></div><div><h3>Записывает клиента</h3><p>Дата, время и контакт сразу попадают в таблицу.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M10 10l4 4"/></svg></div><div><h3>Передаёт человеку</h3><p>Сложный вопрос уходит менеджеру вместе с историей диалога.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div><div><h3>Ежедневная сводка</h3><p>Вечером вы получаете в Telegram список всех заявок за день.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></div><div><h3>Несколько каналов</h3><p>WhatsApp, Instagram, Telegram и виджет на сайте.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h7v14H4zM13 5h7v14h-7z"/></svg></div><div><h3>Вы сами меняете ответы</h3><p>Цены и расписание правятся в Google Таблице, без программиста.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01"/></svg></div><div><h3>Показывает пробелы</h3><p>Собирает вопросы, на которые не нашёл ответа, чтобы дополнить базу знаний.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. АВТОМАТИЗАЦИЯ: ПРИМЕР -->
+<section id="automation">
+  <div class="wrap auto-grid">
+    <div class="sec-head" style="margin-bottom:0">
+      <span class="eyebrow">Автоматизация на примере</span>
+      <h2>Одна заявка проходит путь без ручной работы</h2>
+      <p class="lead">Собираю такие цепочки на n8n и подключаю к сервисам, которыми вы уже пользуетесь: Google Таблицы, AmoCRM, Bitrix24, Telegram, почта.</p>
+      <div class="flow" aria-label="Пример цепочки автоматизации">
+        <span>Заявка из Instagram</span><i>→</i><span>Таблица / CRM</span><i>→</i><span>Уведомление менеджеру</span><i>→</i><span>Напоминание клиенту за день</span>
+      </div>
+    </div>
+    <ul class="auto-list">
+      <li><h3>Учёт заявок</h3><p>Все обращения из мессенджеров и сайта в одной таблице, с источником и статусом.</p></li>
+      <li><h3>Напоминания</h3><p>Клиент получает напоминание о записи, менеджер о звонке, который нужно сделать.</p></li>
+      <li><h3>Отчёты</h3><p>Сводка по заявкам, записям и оплатам приходит сама каждый день или неделю.</p></li>
+      <li><h3>Документы</h3><p>Договоры, счета и приветственные письма собираются из шаблона по данным клиента.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. ДЕМО -->
+<section class="band" id="demo">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Демо</span>
+      <h2>Посмотрите, как бот ведёт диалог</h2>
+      <p class="lead">Короткая запись работы бота и примеры переписки для разных бизнесов.</p>
+    </div>
+    <div class="demo-grid">
+      <div class="video" role="img" aria-label="Место для видео демо-бота">
+        <div>
+          <div class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+          <strong>Здесь будет видео демо-бота</strong><br>
+          <span class="placeholder">запись экрана Telegram-бота, 30–60 сек</span>
+        </div>
+      </div>
+      <div>
+        <div class="tabs" role="tablist" aria-label="Примеры диалогов">
+          <button role="tab" aria-selected="true" data-k="fit" id="tab-fit">Фитнес-клуб</button>
+          <button role="tab" aria-selected="false" data-k="drive" id="tab-drive">Автошкола</button>
+          <button role="tab" aria-selected="false" data-k="kids" id="tab-kids">Детская секция</button>
+        </div>
+        <div class="demo-chat chat" id="demoChat" role="tabpanel" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. ДЛЯ КОГО -->
+<section id="industries">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Для кого</span>
+      <h2>Подходит бизнесу, где клиенты задают одни и те же вопросы</h2>
+    </div>
+    <div class="industries">
+      <div class="industry"><h3>Языковые школы и репетиторы</h3><span class="q">«Сколько стоит? Есть пробный урок?»</span><p>Подбор уровня и группы, запись на пробное занятие.</p></div>
+      <div class="industry"><h3>Фитнес-клубы и студии</h3><span class="q">«Какие абонементы? Есть гостевой визит?»</span><p>Абонементы, расписание, запись на тренировку.</p></div>
+      <div class="industry"><h3>Детские секции и кружки</h3><span class="q">«С какого возраста берёте?»</span><p>Возраст, группы, расписание, запись родителей.</p></div>
+      <div class="industry"><h3>Автошколы</h3><span class="q">«Сколько длится обучение на категорию B?»</span><p>Категории, сроки, цены, график теории и вождения.</p></div>
+      <div class="industry"><h3>Учебные центры и онлайн-курсы</h3><span class="q">«Когда старт следующего потока?»</span><p>Программы, старты, оплата и доступ к курсу.</p></div>
+      <div class="industry"><h3>Сервисные компании</h3><span class="q">«Сколько стоит выезд мастера?»</span><p>Предварительный расчёт, адрес, удобное время визита.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. КАК РАБОТАЕМ -->
+<section class="band" id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Как работаем</span>
+      <h2>От первого разговора до работающего бота</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Консультация</h3><p>Обсуждаем, как к вам приходят клиенты и где теряется время.</p><span class="dur">30 минут, бесплатно</span></li>
+      <li><h3>Сценарий</h3><p>Собираю частые вопросы, пишу сценарий и базу знаний.</p><span class="dur">2–3 дня</span></li>
+      <li><h3>Сборка и тест</h3><p>Настраиваю бота и проверяем его вместе на ваших примерах.</p><span class="dur">до 1 недели</span></li>
+      <li><h3>Пилот</h3><p>Бот работает с реальными клиентами, я слежу и дорабатываю.</p><span class="dur">2–3 недели</span></li>
+      <li><h3>Поддержка</h3><p>Обновляю ответы, цены и сценарии, присылаю отчёт по заявкам.</p><span class="dur">каждый месяц</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 9. СРАВНЕНИЕ -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Сравнение</span>
+      <h2>Чем это отличается от других вариантов</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Администратор</th><th>Конструктор ботов</th><th>Агентство</th><th class="us">ArnaLabs</th></tr></thead>
+        <tbody>
+          <tr><td>Стоимость</td><td>150–300 тыс ₸ в месяц</td><td>25–118 тыс ₸ в месяц</td><td>от 200 тыс до 1,3 млн ₸ за запуск</td><td class="us">от 80 тыс ₸ за запуск + от 25 тыс ₸ в месяц</td></tr>
+          <tr><td>Работает ночью и в выходные</td><td>Нет</td><td>Да</td><td>Да</td><td class="us">Да</td></tr>
+          <tr><td>Кто настраивает</td><td>—</td><td>Вы сами</td><td>Команда агентства</td><td class="us">Я, под ключ</td></tr>
+          <tr><td>Срок запуска</td><td>Поиск и обучение сотрудника</td><td>Сколько уйдёт у вас</td><td>3–6 недель</td><td class="us">1–2 недели</td></tr>
+          <tr><td>Пробный период</td><td>Испытательный срок</td><td>Обычно есть</td><td>Редко</td><td class="us">Пилот бесплатно</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 10. ЦЕНЫ -->
+<section class="band" id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Цены</span>
+      <h2>Понятные цены без скрытых платежей</h2>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <span class="tagline">Пилот</span>
+        <div class="amount">0 ₸<small>2–3 недели</small></div>
+        <ul><li>Бот под ваш бизнес</li><li>Работа с реальными клиентами</li><li>Отчёт: сколько заявок и записей</li><li>Оплачиваете только канал WhatsApp</li></ul>
+        <a class="btn btn-ghost" href="#contact">Запросить пилот</a>
+      </div>
+      <div class="plan hl">
+        <span class="tagline">AI-бот</span>
+        <div class="amount">от 80 000 ₸<small>запуск + от 25 000 ₸ в месяц</small></div>
+        <ul><li>Сценарий и база знаний</li><li>WhatsApp, Instagram или Telegram</li><li>Запись в таблицу, сводка в Telegram</li><li>В абонентскую плату входят канал, AI и правки</li></ul>
+        <a class="btn btn-primary" href="#contact">Обсудить бота</a>
+      </div>
+      <div class="plan">
+        <span class="tagline">Процессы</span>
+        <div class="amount">от 50 000 ₸<small>автоматизация одного процесса</small></div>
+        <ul><li>Аудит процесса и план</li><li>Связка ваших сервисов</li><li>Инструкция для сотрудников</li><li>Первая консультация бесплатно</li></ul>
+        <a class="btn btn-ghost" href="#contact">Разобрать процесс</a>
+      </div>
+    </div>
+    <p class="note">Точная цена зависит от числа каналов, интеграций и объёма базы знаний. Называю её после консультации, до начала работ.</p>
+  </div>
+</section>
+
+<!-- 11. ПИЛОТНАЯ ПРОГРАММА (вместо кейсов) -->
+<section id="pilot">
+  <div class="wrap">
+    <div class="pilot">
+      <div>
+        <span class="eyebrow" style="color:inherit;opacity:.8">Пилотная программа · осень 2026</span>
+        <h2 style="margin-top:10px">Беру 5 компаний на бесплатный пилот</h2>
+        <p>Настрою бота под ваш бизнес бесплатно. Взамен прошу честный отзыв и разрешение показать результаты как кейс.</p>
+      </div>
+      <a class="btn" href="#contact">Занять место</a>
+    </div>
+  </div>
+</section>
+
+<!-- 12. ОБО МНЕ -->
+<section class="band" id="about">
+  <div class="wrap about">
+    <div class="photo">ваше фото<br>4:5</div>
+    <div class="about-copy">
+      <span class="eyebrow">Обо мне</span>
+      <h2>Анара, бизнес-аналитик</h2>
+      <p class="lead">Я старший бизнес-аналитик и <span class="placeholder">N</span> лет разбираю, как устроены процессы компаний и где они теряют деньги. Теперь применяю этот опыт к малому бизнесу: сначала понимаю ваш процесс, потом автоматизирую то, что действительно окупится.</p>
+      <ul class="creds">
+        <li>Старший бизнес-аналитик</li>
+        <li>n8n и AI-интеграции</li>
+        <li>Английский и немецкий C1</li>
+        <li>Астана, работаю по всему Казахстану</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 13. FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Вопросы</span>
+      <h2>Частые вопросы</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Не заблокируют ли мой номер WhatsApp?</summary><p>Для работы с клиентами я подключаю официальный WhatsApp Business API через партнёров Meta. Это легальный способ, номер не блокируют за работу бота. Для демо и пилота можно использовать упрощённое подключение.</p></details>
+      <details><summary>Нужно ли что-то устанавливать?</summary><p>Нет. Бот работает в облаке. Вы продолжаете пользоваться WhatsApp как обычно и видите все диалоги.</p></details>
+      <details><summary>Что если бот не знает ответа?</summary><p>Он честно скажет, что уточнит, и передаст диалог вашему менеджеру с историей переписки. Такие вопросы я собираю и добавляю в базу знаний.</p></details>
+      <details><summary>Бот отвечает на казахском?</summary><p>Да. AI отвечает на казахском, русском и английском, на том языке, на котором написал клиент.</p></details>
+      <details><summary>Чем вы лучше конструктора за 25 000 ₸ в месяц?</summary><p>Конструктор нужно настраивать самому: писать сценарии, базу знаний, подключать каналы. Я делаю это под ключ, под ваш бизнес, и дальше поддерживаю бота.</p></details>
+      <details><summary>Могу ли я сам поменять цены и расписание?</summary><p>Да. Ответы бота хранятся в Google Таблице или документе. Меняете текст там, бот сразу отвечает по-новому.</p></details>
+      <details><summary>Как оплачивать WhatsApp?</summary><p>Meta берёт плату за некоторые типы сообщений. В пилоте вы платите только за канал, в обычном тарифе это входит в абонентскую плату.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 14. КОНТАКТЫ -->
+<section class="band" id="contact">
+  <div class="wrap contact">
+    <div>
+      <span class="eyebrow">Контакты</span>
+      <h2 style="margin-top:12px">Расскажите о задаче, отвечу в течение дня</h2>
+      <p class="lead" style="margin-top:14px">Проще всего написать в WhatsApp. Первая консультация бесплатная и ни к чему не обязывает.</p>
+      <ul class="contact-ways">
+        <li><span>WhatsApp</span><b><span class="placeholder">+7 7XX XXX XX XX</span></b></li>
+        <li><span>Telegram</span><b><span class="placeholder">@username</span></b></li>
+        <li><span>Instagram</span><b><span class="placeholder">@arnalabs</span></b></li>
+        <li><span>Почта</span><b><span class="placeholder">hello@arnalabs</span></b></li>
+      </ul>
+    </div>
+    <form id="leadForm" novalidate>
+      <label for="f-name">Как вас зовут<input id="f-name" name="name" autocomplete="name" placeholder="Айгерим"></label>
+      <label for="f-biz">Ваш бизнес<input id="f-biz" name="biz" placeholder="Языковая школа, Астана"></label>
+      <label for="f-need">Что нужно
+        <select id="f-need" name="need">
+          <option>AI-бот</option><option>Автоматизация процесса</option><option>Консалтинг по процессам</option><option>Пока не знаю, нужна консультация</option>
+        </select>
+      </label>
+      <label for="f-msg">Пара слов о задаче<textarea id="f-msg" name="msg" placeholder="Много вопросов в WhatsApp вечером, не успеваем отвечать"></textarea></label>
+      <button class="btn btn-primary" type="submit">Отправить в WhatsApp</button>
+      <p class="consent">Нажимая кнопку, вы соглашаетесь на обработку персональных данных. <span class="placeholder">ссылка на политику</span></p>
+      <p id="formNote" class="consent" hidden></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 ArnaLabs. AI-боты и автоматизация для бизнеса Казахстана</span>
+    <span><a href="#top">Наверх</a> · <span class="placeholder">Политика конфиденциальности</span></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var dialogs = {
+    fit: [
+      ["out","Здравствуйте, какие у вас абонементы?","21:12"],
+      ["in","Здравствуйте! Есть три варианта: утренний 18 000 ₸, безлимит 25 000 ₸ и безлимит с бассейном 32 000 ₸ в месяц. Хотите сначала прийти на гостевую тренировку бесплатно?","21:12"],
+      ["out","Да, а когда можно?","21:13"],
+      ["in","Завтра свободно 08:00, 12:00 и 19:00. Как вас записать: имя и удобное время?","21:13"],
+      ["out","Дана, 19:00","21:13"],
+      ["in","Записала, Дана, завтра в 19:00 ✓ Возьмите сменную обувь и полотенце. Напомню за 2 часа.","21:14"]
+    ],
+    drive: [
+      ["out","Сколько стоит обучение на категорию B?","22:05"],
+      ["in","Добрый вечер! Обучение на B: 180 000 ₸, около 2,5 месяцев. Теория онлайн или в классе, вождение по графику. На какой коробке хотите учиться?","22:05"],
+      ["out","Автомат. Можно платить частями?","22:06"],
+      ["in","Да, можно в 2–3 платежа. Ближайшая группа стартует 14 октября. Оставьте имя и номер, менеджер перезвонит и забронирует место.","22:06"],
+      ["out","Ерлан, 8 701 *** ** **","22:07"],
+      ["in","Спасибо, Ерлан ✓ Передала заявку менеджеру, он позвонит завтра до 12:00.","22:07"]
+    ],
+    kids: [
+      ["out","С какого возраста берёте на плавание?","20:31"],
+      ["in","Здравствуйте! Берём детей с 5 лет. Группы: 5–7 лет и 8–12 лет, 3 раза в неделю. Сколько лет ребёнку?","20:31"],
+      ["out","6 лет. А сколько стоит?","20:32"],
+      ["in","Для группы 5–7 лет: 28 000 ₸ в месяц. Первое занятие пробное, бесплатно. Нужна справка от педиатра. Записать на пробное в субботу в 10:00?","20:32"],
+      ["out","Да","20:32"],
+      ["in","Готово ✓ Суббота, 10:00. Напишите, пожалуйста, имя ребёнка.","20:33"]
+    ]
+  };
+  var box = document.getElementById('demoChat');
+  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  function render(k){
+    box.innerHTML = dialogs[k].map(function(m){
+      return '<div class="msg '+m[0]+'">'+(m[0]==='in'?'<span class="tag">AI-ассистент</span>':'')+esc(m[1])+'<time>'+m[2]+'</time></div>';
+    }).join('');
+  }
+  var tabs = document.querySelectorAll('.tabs button');
+  tabs.forEach(function(b){
+    b.addEventListener('click', function(){
+      tabs.forEach(function(t){t.setAttribute('aria-selected', t===b ? 'true':'false');});
+      render(b.dataset.k);
+    });
+  });
+  render('fit');
+
+  // На живом сайте: подставьте свой номер в WA_NUMBER, форма откроет WhatsApp с готовым сообщением
+  var WA_NUMBER = '77000000000';
+  document.getElementById('leadForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var f = e.target;
+    var text = 'Здравствуйте! Меня зовут ' + (f.name.value||'...') + '. Бизнес: ' + (f.biz.value||'...') +
+      '. Интересует: ' + f.need.value + '. ' + (f.msg.value||'');
+    var url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text);
+    window.open(url, '_blank', 'noopener');
+  });
+})();
+</script>
+
+</body>
+</html>
