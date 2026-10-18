@@ -5,4 +5,4 @@
 - `index.html` — вся страница (тексты, стили, скрипт)
 - `favicon.svg` — иконка во вкладке браузера
 
-Публикуется через GitHub Pages из ветки `main`.
+Публикуется через GitHub Pages из ветки `main`: https://arna-labs.github.io
